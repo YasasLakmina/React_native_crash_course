@@ -21,8 +21,8 @@ export default function HomeScreen() {
     <View className="flex-1 items-center justify-center bg-white">
       <Text className="text-2xl font-pblack">Aora!</Text>
       <StatusBar style="auto" />
-      <Link href={"/home" as Href} style={{ color: "blue" }}>
-        Go to the Home
+      <Link href={"/profile" as Href} style={{ color: "blue" }}>
+        Go to the profile
       </Link>
     </View>
   );
