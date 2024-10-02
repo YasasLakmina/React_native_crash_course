@@ -1,21 +1,20 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { icons } from "@/constants";
+import { ResizeMode, Video } from "expo-av";
 
 interface Creator {
   username: string;
   avatar: string;
 }
 
-interface Video {
-  title: string;
-  thumbnail: string;
-  video: string;
-  creator: Creator;
-}
-
 interface VideoCardProps {
-  video: Video;
+  video: {
+    title: string;
+    thumbnail: string;
+    video: string; // This should be the video URL
+    creator: Creator;
+  };
 }
 
 const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
@@ -51,16 +50,31 @@ const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
           </View>
         </View>
         <View className="pt-2">
-          <Image source={icons.menu} className="2-5 h-5" resizeMode="contain" />
+          <Image source={icons.menu} className="w-5 h-5" resizeMode="contain" />
         </View>
       </View>
       {play ? (
-        <Text className="text-white">Playing</Text>
+        <Video
+          source={{ uri: videoUrl }} // Use the video URL here
+          className="w-full h-60 rounded-xl mt-3 "
+          resizeMode={ResizeMode.CONTAIN}
+          useNativeControls
+          shouldPlay={play}
+          onPlaybackStatusUpdate={(status) => {
+            console.log("Playback Status:", status); // Log playback status
+            if (status.didJustFinish) {
+              setPlay(false);
+            }
+          }}
+          onError={(error) => {
+            console.error("Video playback error:", error); // Log any playback errors
+          }}
+        />
       ) : (
         <TouchableOpacity
           activeOpacity={0.7}
           onPress={() => setPlay(true)}
-          className="w-full h-60 roundedd-xl mt-3 relative justify-center items-center"
+          className="w-full h-60 rounded-xl mt-3 relative justify-center items-center"
         >
           <Image
             source={{ uri: thumbnail }}
