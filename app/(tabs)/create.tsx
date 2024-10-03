@@ -12,16 +12,18 @@ import FormField from "@/components/FormField";
 import { ResizeMode, Video } from "expo-av";
 import { icons } from "@/constants";
 import CustomButton from "@/components/CustomButton";
-import * as DocumentPicker from "expo-document-picker";
+import * as ImagePicker from "expo-image-picker";
 import { router } from "expo-router";
+import { createVideo } from "../../lib/appwrite";
+import { useGlobalContext } from "@/context/GlobleProvider";
 
 const Create = () => {
+  const { user } = useGlobalContext();
   const [uploading, setUploading] = useState(false);
-
   const [form, setForm] = useState<{
     title: string;
-    video: { uri: string } | null;
-    thumbnail: { uri: string } | null;
+    video: ImagePicker.ImagePickerAsset | null;
+    thumbnail: ImagePicker.ImagePickerAsset | null;
     prompt: string;
   }>({
     title: "",
@@ -30,13 +32,18 @@ const Create = () => {
     prompt: "",
   });
 
+  console.log(form.prompt);
+
   const openPicker = async (selectType: any) => {
     //npm i expo-document-picker
-    const result = await DocumentPicker.getDocumentAsync({
-      type:
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes:
         selectType === "image"
-          ? ["image/png", "image/jpg"]
-          : ["video/mp4", "video/gif"],
+          ? ImagePicker.MediaTypeOptions.Images
+          : ImagePicker.MediaTypeOptions.Videos,
+
+      aspect: [4, 3],
+      quality: 1,
     });
     if (!result.canceled) {
       if (selectType === "image") {
@@ -46,19 +53,25 @@ const Create = () => {
       if (selectType === "video") {
         setForm({ ...form, video: result.assets[0] });
       }
-    } else {
-      setTimeout(() => {
-        Alert.alert("Document picked", JSON.stringify(result, null, 2));
-      }, 100);
     }
   };
-  const submit = () => {
-    if (!form.prompt || form.title || form.thumbnail || form.video) {
-      return Alert.alert("Please fill in all the fields");
+  const submit = async () => {
+    if (
+      form.prompt === "" ||
+      form.title === "" ||
+      !form.thumbnail ||
+      !form.video
+    ) {
+      return Alert.alert("Please provide all fields");
     }
     setUploading(true);
 
     try {
+      await createVideo({
+        ...form,
+        userId: user.$id,
+      });
+
       Alert.alert("Succuess", "Post uploaded successfully");
       router.push("/home");
     } catch (error: any) {
@@ -89,7 +102,6 @@ const Create = () => {
               <Video
                 source={{ uri: form.video.uri }}
                 className="w-full h-64 rounded-2xl"
-                useNativeControls
                 resizeMode={ResizeMode.COVER}
               />
             ) : (
@@ -131,7 +143,7 @@ const Create = () => {
           </TouchableOpacity>
         </View>
         <FormField
-          title="AI Propmt"
+          title="AI Prompt"
           value={form.prompt}
           placeholder="The prompt you used to create this video"
           handleChangeText={(e) => setForm({ ...form, prompt: e })}

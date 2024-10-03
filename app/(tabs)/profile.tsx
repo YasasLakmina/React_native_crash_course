@@ -11,12 +11,12 @@ import InfoBox from "@/components/InfoBox";
 import { router } from "expo-router";
 
 const Profile = ({ initialQuery }: any) => {
-  const { user, setUser, setIsLoggedIn } = useGlobalContext();
+  const { user, setUser, setIsLogged } = useGlobalContext();
 
   const loogut = async () => {
     await signOut();
     setUser(null);
-    setIsLoggedIn(false);
+    setIsLogged(false);
 
     router.replace("/sign-in");
   };
