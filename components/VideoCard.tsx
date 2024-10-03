@@ -62,7 +62,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video }) => {
           shouldPlay={play}
           onPlaybackStatusUpdate={(status) => {
             console.log("Playback Status:", status); // Log playback status
-            if (status.didJustFinish) {
+            if (status.isLoaded && status.didJustFinish) {
               setPlay(false);
             }
           }}
