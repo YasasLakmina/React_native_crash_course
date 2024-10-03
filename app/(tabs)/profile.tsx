@@ -1,18 +1,25 @@
 import { View, FlatList, TouchableOpacity, Image } from "react-native";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getUserPosts } from "@/lib/appwrite";
+import { getUserPosts, signOut } from "@/lib/appwrite";
 import useAppwrite from "@/lib/useAppwrite";
 import EmptyState from "@/components/EmptyState";
 import VideoCard from "@/components/VideoCard";
 import { useGlobalContext } from "@/context/GlobleProvider";
 import { icons } from "@/constants";
 import InfoBox from "@/components/InfoBox";
+import { router } from "expo-router";
 
 const Profile = ({ initialQuery }: any) => {
   const { user, setUser, setIsLoggedIn } = useGlobalContext();
 
-  const loogut = () => {};
+  const loogut = async () => {
+    await signOut();
+    setUser(null);
+    setIsLoggedIn(false);
+
+    router.replace("/sign-in");
+  };
 
   const [refreshing, setRefreshing] = useState(false);
 
